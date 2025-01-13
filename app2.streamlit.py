@@ -5,12 +5,10 @@ from langchain_core.output_parsers import StrOutputParser  # Converts output to 
 import streamlit as st  # Web app framework
 import os  # For environment variables
 
+# Consolidate environment variable setup
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
-
-# Set up environment variables for API keys and tracing
-
-os.environ["LANGCHAIN_API_KEY"] = st.secrets("LANGCHAIN_API_KEY")
-os.environ["LANGCHAIN_TRACING_V2"] = "true"  # Enable LangChain tracing
+os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN_API_KEY"]
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
 # Update the prompt template to include chat history
 prompt = ChatPromptTemplate.from_messages([
@@ -39,13 +37,13 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 # Handle new user input
-if prompt := st.chat_input("Enter your message"):
+if user_input := st.chat_input("Enter your message"):
     # Add user message to history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.session_state.messages.append({"role": "user", "content": user_input})
     
     # Display user message
     with st.chat_message("user"):
-        st.write(prompt)
+        st.write(user_input)
     
     # Format chat history for the prompt
     chat_history = "\n".join([
@@ -55,7 +53,7 @@ if prompt := st.chat_input("Enter your message"):
     
     # Get AI response with chat history context
     result = chain.invoke({
-        "input": prompt,
+        "input": user_input,
         "chat_history": chat_history if chat_history else "No previous messages"
     })
     
